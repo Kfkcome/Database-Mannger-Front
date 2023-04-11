@@ -26,7 +26,7 @@
       <el-button type="primary" @click="configHideFieldDialogVisible" :icon="Plus">字段隐藏</el-button>
       <el-popconfirm
           title="确定删除数据 "
-          @confirm="deleteSelectionRows"
+          @confirm="deleteSelectionRowsOnMainTable"
           confirm-button-type="danger"
           cancel-button-type="primary">
         <template #reference>
@@ -123,17 +123,17 @@
     </template>
     <div class="el-table">
       <el-table
-          :data="recordList"
-          stripe
-          border
-          style="width: 100%"
-          @selection-change="handleSelectionChange"
-          ref="tableRef">
-        <el-table-column type="selection" width="55" />
+              ref="mainTableRef"
+              :data="recordList"
+              border
+              stripe
+              style="width: 100%"
+              @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55"/>
         <template v-for="(value,index) in fieldNames" :key="index">
           <template v-if="fieldFlags[index]">
             <el-table-column :property="value" :label="value" width="200"/>
-            <h1>{{value}}</h1>
+            <h1>{{ value }}</h1>
           </template>
         </template>
         <el-table-column fixed="right" label="Operations" width="240">
@@ -150,13 +150,8 @@
       </el-table>
     </div>
     <div class="el-pagination">
-      <el-pagination
-          :page-count="page"
-          :total="rows"
-          v-model:current-page="currentPage"
-          @current-change="handleCurrentChange"
-          background
-          layout="total, prev, pager, next, jumper"/>
+      <el-pagination v-model:current-page="currentPage" :page-count="page" :total="rows"
+                     background layout="total, prev, pager, next, jumper" @current-change="handleCurrentChange"/>
     </div>
   </el-card>
 
@@ -165,21 +160,22 @@
       <el-button type="primary" class="middle" @click="drawer = true">
         高级搜索
       </el-button>
+      <el-popconfirm cancel-button-type="primary" confirm-button-type="danger" title="确定删除数据 " @confirm="deleteSelectionRowsOnSubTable">
+        <template #reference>
+          <el-button :icon="Delete" type="danger">删除所选数据</el-button>
+        </template>
+      </el-popconfirm>
       <el-button type="danger" class="middle" @click="deleteSearchedData">
         删除所有数据
       </el-button>
     </template>
     <div class="el-table">
-      <el-table
-          :data="searchedRecordList"
-          stripe
-          border
-          style="width: 100%"
-          ref="tableRef">
+      <el-table ref="subTableRef" :data="searchedRecordList" border stripe style="width: 100%">
+        <el-table-column type="selection" width="55"/>
         <template v-for="(value,index) in fieldNames" :key="index">
           <template v-if="fieldFlags[index]">
             <el-table-column :property="value" :label="value" width="200"/>
-            <h1>{{value}}</h1>
+            <h1>{{ value }}</h1>
           </template>
         </template>
         <el-table-column fixed="right" label="Operations" width="240">
@@ -196,13 +192,9 @@
       </el-table>
     </div>
     <div class="el-pagination">
-      <el-pagination
-          :page-count="searchedPageSize"
-          :total="searchedRowCount"
-          v-model:current-page="searchedCurrentPage"
-          @current-change="searchedHandleCurrentChange"
-          background
-          layout="total, prev, pager, next, jumper"/>
+      <el-pagination v-model:current-page="searchedCurrentPage" :page-count="searchedPageSize" :total="searchedRowCount"
+                     background layout="total, prev, pager, next, jumper"
+                     @current-change="searchedHandleCurrentChange"/>
     </div>
   </el-card>
 
@@ -223,59 +215,60 @@ export default {
 
   setup() {
 
-    const route = useRoute()
-    const commonRequest = getCurrentInstance().appContext.config.globalProperties.$commonRequest;
+      const route = useRoute()
+      const commonRequest = getCurrentInstance().appContext.config.globalProperties.$commonRequest;
 
-    const className = ref()
-    const fieldNames = ref([])
-    const fieldFlags = ref([])
+      const className = ref()
+      const fieldNames = ref([])
+      const fieldFlags = ref([])
 
-    // <----------------------MainTable---------------------------->
-    const searchVal = ref()
-    const recordList = ref([])
-    const page = ref()
-    const currentPage = ref(1)
-    const tableRef = ref()
-    const keyOfCheckedData = ref([])
-    const rows = ref()
-    const dialogVisible = ref(false)
-    const hideFiledDialogVisible = ref(false)
-    const addSingleDataDialogVisible = ref(false)
-    const singleRowData = reactive({})
-    // <----------------------SubTable---------------------------->
+      // <----------------------MainTable---------------------------->
+      const searchVal = ref()
+      const recordList = ref([])
+      const page = ref()
+      const currentPage = ref(1)
+      const mainTableRef = ref()
+      const keyOfCheckedData = ref([])
+      const rows = ref()
+      const dialogVisible = ref(false)
+      const hideFiledDialogVisible = ref(false)
+      const addSingleDataDialogVisible = ref(false)
+      const singleRowData = reactive({})
+      // <----------------------SubTable---------------------------->
 
-    const drawer = ref(false)
-    const direction = ref('rtl')
-    const searchedRecordList = ref([])
-    const searchedPageSize = ref()
-    const searchedCurrentPage = ref(1)
-    const searchedRowCount = ref()
+      const drawer = ref(false)
+      const direction = ref('rtl')
+      const searchedRecordList = ref([])
+      const searchedPageSize = ref()
+      const searchedCurrentPage = ref(1)
+      const searchedRowCount = ref()
+      const subTableRef = ref()
 
-    // <-----------------------Other----------------------->
-    const form = reactive({})
-    let editingOriginRowValues = []
-    const editingNewRow = ref();
-    const editDialogVisible = ref(false)
+      // <-----------------------Other----------------------->
+      const form = reactive({})
+      let editingOriginRowValues = []
+      const editingNewRow = ref();
+      const editDialogVisible = ref(false)
 
-    let formValues = []
+      let formValues = []
 
-    onMounted(() => {
-      className.value = route.query.class
-      getFieldNames()
-      getData(1)
-      getPageSize()
-      getRows()
-    });
+      onMounted(() => {
+          className.value = route.query.class
+          getFieldNames()
+          getData(1)
+          getPageSize()
+          getRows()
+      });
 
-    // 监视form
-    watch(form, (newVal, oldVal) => {
-      formValues = []
-      for (let fieldNamesKey of fieldNames.value) {
-        const tempValue = newVal[fieldNamesKey]
-        if (tempValue === null) {
-          formValues.push("null");
-        } else {
-          formValues.push(tempValue)
+      // 监视form
+      watch(form, (newVal, oldVal) => {
+          formValues = []
+          for (let fieldNamesKey of fieldNames.value) {
+              const tempValue = newVal[fieldNamesKey]
+              if (tempValue === null) {
+                  formValues.push("null");
+              } else {
+                  formValues.push(tempValue)
         }
       }
     })
@@ -347,7 +340,7 @@ export default {
       for (let data of recordList.value) {
         data.checked = false
       }
-      const selectionRows = tableRef.value.getSelectionRows();
+        const selectionRows = mainTableRef.value.getSelectionRows();
       for (let selectionRow of selectionRows) {
         selectionRow.checked = true;
         // 直接向keyOfCheckedData里填充完整数据 而不是主键值
@@ -360,36 +353,67 @@ export default {
     }
 
     // 删除所选数据
-    function deleteSelectionRows() {
-      commonRequest({
-        method: "delete",
-        url: `/${className.value}/delete-multi-data-main`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        data: JSON.stringify(tableRef.value.getSelectionRows())
-      }).then(res => {
-        if (res.data.code === "A0003") {
-          ElNotification({
-            title: '数据删除操作状态通知',
-            message: res.data.message,
-            type: 'success',
-          });
-        } else {
-          ElNotification({
-            title: '数据删除操作状态通知',
-            message: res.data.message,
-            type: 'error',
-          });
-        }
-        getData()
-        getRows()
-        getPageSize()
-        searchedHandleCurrentChange()
-      }).catch(err => {
-        console.log(err)
-      });
+    function deleteSelectionRowsOnMainTable() {
+        commonRequest({
+            method: "delete",
+            url: `/${className.value}/delete-multi-data-main`,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: JSON.stringify(mainTableRef.value.getSelectionRows())
+        }).then(res => {
+            if (res.data.code === "A0003") {
+                ElNotification({
+                    title: '数据删除操作状态通知',
+                    message: res.data.message,
+                    type: 'success',
+                });
+            } else {
+                ElNotification({
+                    title: '数据删除操作状态通知',
+                    message: res.data.message,
+                    type: 'error',
+                });
+            }
+            getData()
+            getRows()
+            getPageSize()
+            searchedHandleCurrentChange()
+        }).catch(err => {
+            console.log(err)
+        });
     }
+
+      function deleteSelectionRowsOnSubTable() {
+          commonRequest({
+              method: "delete",
+              url: `/${className.value}/delete-multi-data-main`,
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              data: JSON.stringify(subTableRef.value.getSelectionRows())
+          }).then(res => {
+              if (res.data.code === "A0003") {
+                  ElNotification({
+                      title: '数据删除操作状态通知',
+                      message: res.data.message,
+                      type: 'success',
+                  });
+              } else {
+                  ElNotification({
+                      title: '数据删除操作状态通知',
+                      message: res.data.message,
+                      type: 'error',
+                  });
+              }
+              getData()
+              getRows()
+              getPageSize()
+              searchedHandleCurrentChange()
+          }).catch(err => {
+              console.log(err)
+          });
+      }
 
     // 添加数据
     function addSelectionRow() {
@@ -460,7 +484,7 @@ export default {
 
     // 全选数据
     function checkAll() {
-      tableRef.value.toggleAllSelection();
+        mainTableRef.value.toggleAllSelection();
     }
 
     function getSerializedData(value) {
@@ -629,6 +653,7 @@ export default {
       });
     }
 
+
     function deleteSearchedData() {
       commonRequest({
         method: "delete",
@@ -647,50 +672,50 @@ export default {
     }
 
     return {
-      route,
-      recordList,
-      page,
-      searchVal,
-      Plus,
-      Delete,
-      Search,
-      currentPage,
-      tableRef,
-      keyOfCheckedData,
-      rows,
-      dialogVisible,
-      fieldNames,
-      searchedRecordList,
-      searchedPageSize,
-      searchedCurrentPage,
-      searchedRowCount,
-      drawer,
-      direction,
-      form,
-      hideFiledDialogVisible,
-      fieldFlags,
-      editingNewRow,
-      addSingleDataDialogVisible,
-      singleRowData,
-      editDialogVisible,
-      searchBaseName,
-      handleSelectionChange,
-      deleteSelectionRows,
-      handleCurrentChange,
-      addSelectionRow,
-      showDetailedInfo,
-      upload,
-      checkAll,
-      handleClose,
-      clearForm,
-      searchedHandleCurrentChange,
-      configHideFieldDialogVisible,
-      configAddSingleDataDialogVisible,
-      postSingleRowData,
-      deleteSingleData,
-      updateEditingData,
-      configEditDialogVisible,
-      deleteSearchedData
+        route,
+        recordList,
+        page,
+        searchVal,
+        Plus,
+        Delete,
+        Search,
+        currentPage,
+        mainTableRef: mainTableRef,
+        keyOfCheckedData,
+        rows,
+        dialogVisible,
+        fieldNames,
+        searchedRecordList,
+        searchedPageSize,
+        searchedCurrentPage,
+        searchedRowCount,
+        drawer,
+        direction,
+        form,
+        hideFiledDialogVisible,
+        fieldFlags,
+        editingNewRow,
+        addSingleDataDialogVisible,
+        singleRowData,
+        editDialogVisible,
+        subTableRef,
+        handleSelectionChange,
+        deleteSelectionRowsOnMainTable: deleteSelectionRowsOnMainTable,
+        handleCurrentChange,
+        addSelectionRow,
+        upload,
+        checkAll,
+        handleClose,
+        clearForm,
+        searchedHandleCurrentChange,
+        configHideFieldDialogVisible,
+        configAddSingleDataDialogVisible,
+        postSingleRowData,
+        deleteSingleData,
+        updateEditingData,
+        configEditDialogVisible,
+        deleteSearchedData,
+        deleteSelectionRowsOnSubTable
 
     };
   },

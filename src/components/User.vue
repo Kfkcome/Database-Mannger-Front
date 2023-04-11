@@ -4,7 +4,7 @@
       <el-button type="primary" @click="addSelectionRow" :icon="Plus">增加</el-button>
       <el-popconfirm
           title="确定删除数据 "
-          @confirm="deleteSelectionRows"
+          @confirm="deleteSelectionRowsOnMainTable"
           confirm-button-type="danger"
           cancel-button-type="primary">
         <template #reference>
@@ -14,10 +14,11 @@
     </template>
 
     <div class="el-table">
-      <el-table :data="recordList" stripe style="width: 100%" @selection-change="handleSelectionChange" ref="tableRef">
-        <el-table-column type="selection" width="55" />
-        <el-table-column property="name" label="用户名" width="100" />
-        <el-table-column property="mail" label="电子邮箱地址" width="1000" />
+      <el-table ref="mainTableRef" :data="recordList" stripe style="width: 100%"
+                @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55"/>
+        <el-table-column label="用户名" property="name" width="100"/>
+        <el-table-column label="电子邮箱地址" property="mail" width="1000"/>
       </el-table>
     </div>
 
@@ -46,17 +47,17 @@
       const recordList = ref([])
       const search = ref()
       const page = ref();
-      const currentPage=ref(1)
-      const tableRef=ref()
-      const keyOfCheckedData=computed(()=>{
-        const ids = []
-        for (let data of recordList.value) {
-          if (data.checked) {
-            ids.push(data.name);
-          }
-        }
-        return ids;
-      })
+        const currentPage = ref(1)
+        const mainTableRef = ref()
+        const keyOfCheckedData = computed(() => {
+            const ids = []
+            for (let data of recordList.value) {
+                if (data.checked) {
+                    ids.push(data.name);
+                }
+            }
+            return ids;
+        })
       const rows=ref()
 
       function getData(currentSize){
@@ -96,7 +97,7 @@
         });
       }
 
-      function deleteSelectionRows(){
+      function deleteSelectionRowsOnMainTable(){
         commonRequest({
           method: "delete",
           url: "/user/delete",
@@ -111,7 +112,7 @@
 
       // 处理被选中数据checked属性
       function handleSelectionChange(rows) {
-        const selectionRows = tableRef.value.getSelectionRows();
+          const selectionRows = mainTableRef.value.getSelectionRows();
         for (let selectionRow of selectionRows) {
           // 可直接更改表格数据
           selectionRow.checked=true;
@@ -143,19 +144,19 @@
       })
 
       return {
-        recordList,
-        page,
-        search,
-        Plus,
-        Delete,
-        currentPage,
-        tableRef,
-        keyOfCheckedData,
-        rows,
-        handleSelectionChange,
-        deleteSelectionRows,
-        handleCurrentChange,
-        addSelectionRow,
+          recordList,
+          page,
+          search,
+          Plus,
+          Delete,
+          currentPage,
+          mainTableRef,
+          keyOfCheckedData,
+          rows,
+          handleSelectionChange,
+          deleteSelectionRowsOnMainTable,
+          handleCurrentChange,
+          addSelectionRow,
       };
     },
   }
