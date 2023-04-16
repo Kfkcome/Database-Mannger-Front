@@ -150,8 +150,8 @@
       </el-table>
     </div>
     <div class="el-pagination">
-      <el-pagination v-model:current-page="currentPage" :page-count="page" :total="rows"
-                     background layout="total, prev, pager, next, jumper" @current-change="handleCurrentChange"/>
+      <el-pagination v-model:current-page="currentPage" :page-count="page" :total="rows" background
+                     layout="total, prev, pager, next, jumper" @current-change="handleCurrentChange"/>
     </div>
   </el-card>
 
@@ -215,65 +215,67 @@ export default {
 
   setup() {
 
-      const route = useRoute()
-      const commonRequest = getCurrentInstance().appContext.config.globalProperties.$commonRequest;
+    const route = useRoute()
+    const commonRequest = getCurrentInstance().appContext.config.globalProperties.$commonRequest;
 
-      const className = ref()
-      const fieldNames = ref([])
-      const fieldFlags = ref([])
+    const className = ref()
+    const fieldNames = ref([])
+    const fieldFlags = ref([])
 
-      // <----------------------MainTable---------------------------->
-      const searchVal = ref()
-      const recordList = ref([])
-      const page = ref()
-      const currentPage = ref(1)
-      const mainTableRef = ref()
-      const keyOfCheckedData = ref([])
-      const rows = ref()
-      const dialogVisible = ref(false)
-      const hideFiledDialogVisible = ref(false)
-      const addSingleDataDialogVisible = ref(false)
-      const singleRowData = reactive({})
-      // <----------------------SubTable---------------------------->
+    // <----------------------MainTable---------------------------->
+    const searchVal = ref()
+    const recordList = ref([])
+    const page = ref()
+    const currentPage = ref(1)
+    const mainTableRef = ref()
+    const keyOfCheckedData = ref([])
+    const rows = ref()
+    const dialogVisible = ref(false)
+    const hideFiledDialogVisible = ref(false)
+    const addSingleDataDialogVisible = ref(false)
+    const singleRowData = reactive({})
+    // <----------------------SubTable---------------------------->
 
-      const drawer = ref(false)
-      const direction = ref('rtl')
-      const searchedRecordList = ref([])
-      const searchedPageSize = ref()
-      const searchedCurrentPage = ref(1)
-      const searchedRowCount = ref()
-      const subTableRef = ref()
+    const drawer = ref(false)
+    const direction = ref('rtl')
+    const searchedRecordList = ref([])
+    const searchedPageSize = ref()
+    const searchedCurrentPage = ref(1)
+    const searchedRowCount = ref()
+    const subTableRef = ref()
 
-      // <-----------------------Other----------------------->
-      const form = reactive({})
-      let editingOriginRowValues = []
-      const editingNewRow = ref();
-      const editDialogVisible = ref(false)
+    // <-----------------------Other----------------------->
+    const form = reactive({})
+    let editingOriginRowValues = []
+    const editingNewRow = ref();
+    const editDialogVisible = ref(false)
 
-      let formValues = []
+    let formValues = []
 
-      onMounted(() => {
-          className.value = route.query.class
-          getFieldNames()
-          getData(1)
-          getPageSize()
-          getRows()
-      });
+    onMounted(() => {
+        className.value = route.query.class
+        getFieldNames()
+        getData(1)
+        getPageSize()
+        getRows()
+    });
 
-      // 监视form
-      watch(form, (newVal, oldVal) => {
-          formValues = []
-          for (let fieldNamesKey of fieldNames.value) {
-              const tempValue = newVal[fieldNamesKey]
-              if (tempValue === null) {
-                  formValues.push("null");
-              } else {
-                  formValues.push(tempValue)
-        }
+    // 监视form
+    watch(form, (newVal, oldVal) => {
+        formValues = []
+        for (let fieldNamesKey of fieldNames.value) {
+            const tempValue = newVal[fieldNamesKey]
+            if (tempValue === null) {
+                formValues.push("null");
+            } else {
+                formValues.push(tempValue)
       }
+    }
     })
 
-    // 获取实体字段名列表
+
+
+      // 获取实体字段名列表
     function getFieldNames() {
       commonRequest({
         method: "get",
@@ -288,6 +290,21 @@ export default {
           fieldFlags.value[index] = true;
           index++;
         }
+      }).catch(err => {
+        console.log(err)
+      });
+    }
+
+    function deleteRowsByIds(rows) {
+      commonRequest({
+        method: "delete",
+        url: `/${className.value}/delete`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: JSON.stringify(rows),
+      }).then(res => {
+        console.log(res.data)
       }).catch(err => {
         console.log(err)
       });
@@ -354,14 +371,14 @@ export default {
 
     // 删除所选数据
     function deleteSelectionRowsOnMainTable() {
-        commonRequest({
-            method: "delete",
-            url: `/${className.value}/delete-multi-data-main`,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            data: JSON.stringify(mainTableRef.value.getSelectionRows())
-        }).then(res => {
+      commonRequest({
+        method: "delete",
+        url: `/${className.value}/delete-multi-data-main`,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        data: JSON.stringify(mainTableRef.value.getSelectionRows())
+      }).then(res => {
             if (res.data.code === "A0003") {
                 ElNotification({
                     title: '数据删除操作状态通知',

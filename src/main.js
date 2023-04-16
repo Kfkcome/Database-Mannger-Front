@@ -7,9 +7,7 @@ import axios from 'axios'
 
 // 定义全局axios对象
 const commonRequest = axios.create({
-    // baseURL: "http://localhost:5173/api",
     baseURL: "/api",
-    // baseURL: "http://122.205.95.110:10000",
     timeout: 100000,
 });
 
@@ -25,4 +23,3 @@ app.use(router)
 app.config.globalProperties.$commonRequest = commonRequest
 
 app.mount('#app')
-
