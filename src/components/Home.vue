@@ -12,7 +12,6 @@
       </el-timeline-item>
     </template>
   </el-timeline>
-
   <el-drawer
       size="50%"
       v-model="drawer"
@@ -43,8 +42,6 @@
       </el-button>
     </el-form>
   </el-drawer>
-
-
 </template>
 
 <script>

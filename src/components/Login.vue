@@ -157,6 +157,7 @@ import axios from 'axios'
           const token = response.data.data.token;
           window.localStorage.setItem("Authorization", token);
 
+          // 重新更改commonRequest
           const commonRequest = axios.create({
             baseURL: "http://localhost:5173/api",
             timeout: 100000

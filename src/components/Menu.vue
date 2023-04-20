@@ -2,23 +2,16 @@
 
   <el-container class="home-container">
     <el-header>
-      <div>
-        <span>棉花数据库后台管理系统</span>
-      </div>
-      <div >
-        <el-avatar class="el-avatar">{{commonUserName}}</el-avatar>
-      </div>
+      <span>棉花数据库后台管理系统</span>
+      <el-avatar class="el-avatar">{{commonUserName}}</el-avatar>
       <el-button type="warning" @click="switchDatasource" class="el-button-switch-datasource">切换数据源</el-button>
       <el-button type="info" @click="logout">退出</el-button>
     </el-header>
-
     <el-container>
-      <el-aside >
+      <el-aside class="el-aside">
         <el-menu
             router
             active-text-color="#ffd04b"
-            background-color="#001529"
-            text-color="#999"
         >
           <el-menu-item index="/menu/home">
             <el-icon><IconMenu/></el-icon>
@@ -286,7 +279,6 @@
         <router-view :key="$route.fullPath"></router-view>
       </el-main>
     </el-container>
-
   </el-container>
 
 </template>
@@ -355,8 +347,6 @@ export default {
       }
     })
 
-
-
     function switchDatasource() {
       commonRequest({
         method: "get",
@@ -381,34 +371,31 @@ export default {
 <style scoped lang="less">
   .home-container{
     height: 100%;
+  }
+  .el-header{
+    min-width: 1200px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    padding-left: 0px;
+    align-items:center;
+    font-size: 20px;
     }
-    .el-header{
-      position: relative;
-      background-color: #001529;
-      display: flex;
-      justify-content: space-between;
-      padding-left: 0px;
-      align-items:center;
-      color:#fff;
-      font-size: 20px;
-      >div{
-        display:flex;
-        align-items:center;
-      >span{
-        margin-left: 20px;
-      }
-
-    }
+  span{
+    margin-left: 20px;
   }
 
   .el-aside{
-    background-color: #001529;
-    width: 200px;
+    min-width: 150px;
     height: 100vh;
+  }
+
+  .el-menu {
   }
 
   .el-main{
     background-color: #EAEDF1;
+
   }
 
   .el-avatar {

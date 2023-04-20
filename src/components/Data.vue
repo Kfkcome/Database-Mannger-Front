@@ -9,7 +9,7 @@
   >
     <el-form :model="form" label-width="80px">
       <template v-for="(value,index) in fieldNames" :key="index">
-        <el-form-item :label="value">
+        <el-form-item :label="value" v-if="value!=='id'">
           <el-input v-model="form[value]"/>
         </el-form-item>
       </template>
@@ -26,7 +26,7 @@
       <el-button type="primary" @click="configHideFieldDialogVisible" :icon="Plus">字段隐藏</el-button>
       <el-popconfirm
           title="确定删除数据 "
-          @confirm="deleteSelectionRowsOnMainTable"
+          @confirm="deleteRowsByIds(mainTableRef.getSelectionRows())"
           confirm-button-type="danger"
           cancel-button-type="primary">
         <template #reference>
@@ -48,7 +48,7 @@
             style="max-width: 700px"
         >
           <template v-for="(value,index) in fieldNames" :key="index">
-            <el-form-item :label="value">
+            <el-form-item :label="value" v-if="value!=='id'">
               <el-input  v-model="singleRowData[value]"/>
             </el-form-item>
           </template>
@@ -119,7 +119,6 @@
           </el-form-item>
         </el-form>
       </el-dialog>
-
     </template>
     <div class="el-table">
       <el-table
@@ -144,7 +143,7 @@
               </template>
             </el-popover>
             <el-button size="small" type="primary" @click="configEditDialogVisible(scope.row)">Edit</el-button>
-            <el-button size="small" type="danger" @click="deleteSingleData(scope.$index,scope.row)">Delete</el-button>
+            <el-button size="small" type="danger" @click="deleteSingleRowById(scope.row)">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -160,7 +159,7 @@
       <el-button type="primary" class="middle" @click="drawer = true">
         高级搜索
       </el-button>
-      <el-popconfirm cancel-button-type="primary" confirm-button-type="danger" title="确定删除数据 " @confirm="deleteSelectionRowsOnSubTable">
+      <el-popconfirm cancel-button-type="primary" confirm-button-type="danger" title="确定删除数据 " @confirm="deleteRowsByIds(subTableRef.getSelectionRows())">
         <template #reference>
           <el-button :icon="Delete" type="danger">删除所选数据</el-button>
         </template>
@@ -186,7 +185,7 @@
               </template>
             </el-popover>
             <el-button size="small" type="primary" @click="configEditDialogVisible(scope.row)">Edit</el-button>
-            <el-button size="small" type="danger" @click="deleteSingleData(scope.$index,scope.row)">Delete</el-button>
+            <el-button size="small" type="danger" @click="deleteSingleRowById(scope.row)">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -274,7 +273,6 @@ export default {
     })
 
 
-
       // 获取实体字段名列表
     function getFieldNames() {
       commonRequest({
@@ -295,20 +293,6 @@ export default {
       });
     }
 
-    function deleteRowsByIds(rows) {
-      commonRequest({
-        method: "delete",
-        url: `/${className.value}/delete`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        data: JSON.stringify(rows),
-      }).then(res => {
-        console.log(res.data)
-      }).catch(err => {
-        console.log(err)
-      });
-    }
 
     // 基于当前页数获取数据
     function getData() {
@@ -369,6 +353,41 @@ export default {
       }
     }
 
+    function deleteSingleRowById(row) {
+      commonRequest({
+        method: "delete",
+        url: `/${className.value}/delete-single-row`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: JSON.stringify(row),
+      }).then(res => {
+        getData()
+        getRows()
+        getPageSize()
+        searchedHandleCurrentChange()      }).catch(err => {
+        console.log(err)
+      });
+    }
+
+    // 基于id删除多条数据
+    function deleteRowsByIds(rows) {
+      commonRequest({
+        method: "delete",
+        url: `/${className.value}/delete-rows`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: JSON.stringify(rows),
+      }).then(res => {
+        getData()
+        getRows()
+        getPageSize()
+        searchedHandleCurrentChange()
+      }).catch(err => {
+      });
+    }
+
     // 删除所选数据
     function deleteSelectionRowsOnMainTable() {
       commonRequest({
@@ -401,36 +420,36 @@ export default {
         });
     }
 
-      function deleteSelectionRowsOnSubTable() {
-          commonRequest({
-              method: "delete",
-              url: `/${className.value}/delete-multi-data-main`,
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              data: JSON.stringify(subTableRef.value.getSelectionRows())
-          }).then(res => {
-              if (res.data.code === "A0003") {
-                  ElNotification({
-                      title: '数据删除操作状态通知',
-                      message: res.data.message,
-                      type: 'success',
-                  });
-              } else {
-                  ElNotification({
-                      title: '数据删除操作状态通知',
-                      message: res.data.message,
-                      type: 'error',
-                  });
-              }
-              getData()
-              getRows()
-              getPageSize()
-              searchedHandleCurrentChange()
-          }).catch(err => {
-              console.log(err)
-          });
-      }
+    function deleteSelectionRowsOnSubTable() {
+        commonRequest({
+            method: "delete",
+            url: `/${className.value}/delete-multi-data-main`,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: JSON.stringify(subTableRef.value.getSelectionRows())
+        }).then(res => {
+            if (res.data.code === "A0003") {
+                ElNotification({
+                    title: '数据删除操作状态通知',
+                    message: res.data.message,
+                    type: 'success',
+                });
+            } else {
+                ElNotification({
+                    title: '数据删除操作状态通知',
+                    message: res.data.message,
+                    type: 'error',
+                });
+            }
+            getData()
+            getRows()
+            getPageSize()
+            searchedHandleCurrentChange()
+        }).catch(err => {
+            console.log(err)
+        });
+    }
 
     // 添加数据
     function addSelectionRow() {
@@ -689,50 +708,53 @@ export default {
     }
 
     return {
-        route,
-        recordList,
-        page,
-        searchVal,
-        Plus,
-        Delete,
-        Search,
-        currentPage,
-        mainTableRef: mainTableRef,
-        keyOfCheckedData,
-        rows,
-        dialogVisible,
-        fieldNames,
-        searchedRecordList,
-        searchedPageSize,
-        searchedCurrentPage,
-        searchedRowCount,
-        drawer,
-        direction,
-        form,
-        hideFiledDialogVisible,
-        fieldFlags,
-        editingNewRow,
-        addSingleDataDialogVisible,
-        singleRowData,
-        editDialogVisible,
-        subTableRef,
-        handleSelectionChange,
-        deleteSelectionRowsOnMainTable: deleteSelectionRowsOnMainTable,
-        handleCurrentChange,
-        addSelectionRow,
-        upload,
-        checkAll,
-        handleClose,
-        clearForm,
-        searchedHandleCurrentChange,
-        configHideFieldDialogVisible,
-        configAddSingleDataDialogVisible,
-        postSingleRowData,
-        deleteSingleData,
-        updateEditingData,
-        configEditDialogVisible,
-        deleteSearchedData,
-        deleteSelectionRowsOnSubTable
+      route,
+      recordList,
+      page,
+      searchVal,
+      Plus,
+      Delete,
+      Search,
+      currentPage,
+      mainTableRef: mainTableRef,
+      keyOfCheckedData,
+      rows,
+      dialogVisible,
+      fieldNames,
+      searchedRecordList,
+      searchedPageSize,
+      searchedCurrentPage,
+      searchedRowCount,
+      drawer,
+      direction,
+      form,
+      hideFiledDialogVisible,
+      fieldFlags,
+      editingNewRow,
+      addSingleDataDialogVisible,
+      singleRowData,
+      editDialogVisible,
+      subTableRef,
+      handleSelectionChange,
+      deleteSelectionRowsOnMainTable: deleteSelectionRowsOnMainTable,
+      handleCurrentChange,
+      addSelectionRow,
+      upload,
+      checkAll,
+      handleClose,
+      clearForm,
+      searchedHandleCurrentChange,
+      configHideFieldDialogVisible,
+      configAddSingleDataDialogVisible,
+      postSingleRowData,
+      deleteSingleData,
+      updateEditingData,
+      configEditDialogVisible,
+      deleteSearchedData,
+      deleteSelectionRowsOnSubTable,
+      deleteRowsByIds,
+      deleteSingleRowById,
+
 
     };
   },
@@ -741,6 +763,10 @@ export default {
 </script>
 
 <style scoped>
+
+  .box-card{
+      min-width: 800px;
+  }
   .el-table{
     margin-bottom: 10px;
   }
