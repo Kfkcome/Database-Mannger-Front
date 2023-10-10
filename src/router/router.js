@@ -1,4 +1,4 @@
-import { createRouter,createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import Home from "../components/Home.vue"
 import User from "../components/User.vue"
 import Login from "../components/Login.vue"
@@ -11,7 +11,7 @@ const routes = [
         name: "Menu",
         path: '/menu',
         component: Menu,
-        children:[
+        children: [
             {
                 name: "Home",
                 path: 'home',
@@ -208,18 +208,15 @@ const routes = [
                 component: Data,
             },
             {
-                name: "orthogroups5genomesPlus",
-                path: 'data/orthogroups5genomesPlus',
+                name: "compartment",
+                path: 'data/compartment',
                 component: Data,
             },
             {
                 name: "protein",
                 path: 'data/protein',
                 component: Data,
-            },
-
-
-
+            }
         ]
     },
     {
