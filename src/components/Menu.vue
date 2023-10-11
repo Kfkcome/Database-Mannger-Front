@@ -23,68 +23,68 @@
               <span>数据</span>
             </template>
 
-            <el-menu-item index="/menu/data/a1AHau?class=a1AHau">
+            <el-menu-item index="/menu/data/cultivar?class=cultivar">
               <template #title>
                 <el-icon>
                   <Folder />
                 </el-icon>
-                <span style="font-size: 8px">a1AHau</span>
+                <span style="font-size: 8px">cultivar</span>
               </template>
             </el-menu-item>
-            <el-menu-item index="/menu/data/a1Hau?class=a1Hau">
+            <el-menu-item index="/menu/data/loop?class=loop">
               <template #title>
                 <el-icon>
                   <Folder />
                 </el-icon>
-                <span style="font-size: 8px">a1Hau</span>
+                <span style="font-size: 8px">loop</span>
               </template>
             </el-menu-item>
-            <el-menu-item index="/menu/data/a2flltrChr?class=a2flltrChr">
+            <el-menu-item index="/menu/data/rna?class=rna">
               <template #title>
                 <el-icon>
                   <Folder />
                 </el-icon>
-                <span style="font-size: 8px">a2flltrChr</span>
+                <span style="font-size: 8px">rna</span>
               </template>
             </el-menu-item>
-            <el-menu-item index="/menu/data/a2Hau?class=a2Hau">
+            <el-menu-item index="/menu/data/rnaStructure?class=rnaStructure">
               <template #title>
                 <el-icon>
                   <Folder />
                 </el-icon>
-                <span style="font-size: 8px">a2Hau</span>
+                <span style="font-size: 8px">rnaStructure</span>
               </template>
             </el-menu-item>
-            <el-menu-item index="/menu/data/ad1Hau?class=ad1Hau">
+            <el-menu-item index="/menu/data/software?class=software">
               <template #title>
                 <el-icon>
                   <Folder />
                 </el-icon>
-                <span style="font-size: 8px">ad1Hau</span>
+                <span style="font-size: 8px">software</span>
               </template>
             </el-menu-item>
-            <el-menu-item index="/menu/data/b1flltrChr?class=b1flltrChr">
+            <el-menu-item index="/menu/data/species?class=species">
               <template #title>
                 <el-icon>
                   <Folder />
                 </el-icon>
-                <span style="font-size: 8px">b1flltrChr</span>
+                <span style="font-size: 8px">species</span>
               </template>
             </el-menu-item>
-            <el-menu-item index="/menu/data/b1Hau?class=b1Hau">
+            <el-menu-item index="/menu/data/tissue?class=tissue">
               <template #title>
                 <el-icon>
                   <Folder />
                 </el-icon>
-                <span style="font-size: 8px">b1Hau</span>
+                <span style="font-size: 8px">tissue</span>
               </template>
             </el-menu-item>
-            <el-menu-item index="/menu/data/c1flltrChr?class=c1flltrChr">
+            <el-menu-item index="/menu/data/tissueCultivar?class=tissueCultivar">
               <template #title>
                 <el-icon>
                   <Folder />
                 </el-icon>
-                <span style="font-size: 8px">c1flltrChr</span>
+                <span style="font-size: 8px">tissueCultivar</span>
               </template>
             </el-menu-item>
             <el-menu-item index="/menu/data/c1Hau?class=c1Hau">
